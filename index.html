@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>节点订阅转换</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f6f8; color: #222; line-height: 1.6; }
+  header { background: #1a1d24; color: #fff; padding: 28px 20px; text-align: center; }
+  header h1 { font-size: 22px; font-weight: 600; }
+  header p { font-size: 13px; color: #9aa0ad; margin-top: 6px; }
+  main { max-width: 900px; margin: 0 auto; padding: 20px 16px 60px; }
+  .card { background: #fff; border-radius: 10px; padding: 18px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+  .card h2 { font-size: 15px; margin-bottom: 10px; }
+  .hint { font-size: 12px; color: #888; margin-top: 8px; }
+  textarea, input[type=text] { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 13px; font-family: ui-monospace, monospace; }
+  textarea { min-height: 130px; resize: vertical; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+  button { border: none; border-radius: 8px; padding: 10px 18px; font-size: 14px; cursor: pointer; }
+  .btn-primary { background: #246bfd; color: #fff; }
+  .btn-primary:hover { background: #1a56d6; }
+  .btn-ghost { background: #eef1f5; color: #333; }
+  .btn-ghost:hover { background: #e0e5ec; }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .tab { padding: 8px 14px; border-radius: 20px; background: #eef1f5; font-size: 13px; cursor: pointer; border: none; color: #333; }
+  .tab.active { background: #246bfd; color: #fff; }
+  #nodes { font-size: 13px; }
+  #nodes table { width: 100%; border-collapse: collapse; }
+  #nodes th, #nodes td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #f0f0f0; font-size: 12.5px; }
+  #nodes th { color: #888; font-weight: 500; }
+  #output { background: #1a1d24; color: #d6deeb; border-radius: 8px; padding: 14px; font-size: 12px; font-family: ui-monospace, monospace; white-space: pre; overflow: auto; max-height: 420px; }
+  .badge { display: inline-block; background: #e8f0fe; color: #246bfd; border-radius: 4px; padding: 1px 8px; font-size: 11px; margin-right: 4px; }
+  .warn { background: #fff8e6; border: 1px solid #f0d98c; color: #8a6d1b; border-radius: 8px; padding: 10px 14px; font-size: 12.5px; margin-bottom: 16px; }
+  .hidden { display: none; }
+  footer { text-align: center; font-size: 12px; color: #aaa; padding: 20px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🔀 节点订阅转换</h1>
+  <p>纯前端运行 · 数据不经过服务器 · 支持 ss / ssr / vmess / vless / trojan / hysteria2</p>
+</header>
+<main>
+  <div class="warn">⚠️ 转换在你的浏览器本地完成，不会上传任何内容。若填写订阅链接抓取，将经由你指定的代理服务中转，请注意隐私。</div>
+
+  <div class="card">
+    <h2>1. 输入订阅</h2>
+    <div class="tabs" id="inputTabs">
+      <button class="tab active" data-mode="paste">粘贴内容</button>
+      <button class="tab" data-mode="url">订阅链接</button>
+    </div>
+    <div id="pane-paste">
+      <textarea id="inputText" placeholder="粘贴订阅内容：整体 base64，或每行一个节点链接（ss://、vmess://、vless://、trojan://、hysteria2://、ssr://）"></textarea>
+    </div>
+    <div id="pane-url" class="hidden">
+      <input type="text" id="inputUrl" placeholder="https:// 订阅链接">
+      <div class="row">
+        <input type="text" id="corsProxy" value="https://api.allorigins.win/raw?url=" style="flex:1" title="CORS 代理前缀">
+      </div>
+      <div class="hint">通过 CORS 代理抓取订阅内容，可自行更换代理前缀。</div>
+    </div>
+    <div class="row">
+      <button class="btn-primary" id="btnConvert">解析并转换</button>
+      <button class="btn-ghost" id="btnClear">清空</button>
+    </div>
+    <div class="hint" id="parseInfo"></div>
+  </div>
+
+  <div class="card hidden" id="resultCard">
+    <h2>2. 解析结果 <span id="nodeCount"></span></h2>
+    <div id="nodes"></div>
+  </div>
+
+  <div class="card hidden" id="outputCard">
+    <h2>3. 选择输出格式</h2>
+    <div class="tabs" id="formatTabs"></div>
+    <div class="row" style="margin-bottom:10px">
+      <button class="btn-ghost btn-sm" id="btnCopy">复制</button>
+      <button class="btn-ghost btn-sm" id="btnDownload">下载文件</button>
+    </div>
+    <div id="output"></div>
+  </div>
+</main>
+<footer>节点订阅转换 · 静态页面 · 仅供学习交流</footer>
+<script src="converter.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
